@@ -130,8 +130,6 @@ LimitNOFILE=65535
 WantedBy=multi-user.target
 EOF
 
-curl -L https://snapshots.kjnodes.com/nibiru-testnet/snapshot_latest.tar.lz4 | lz4 -dc - | tar -xf - -C $HOME/.nibid
-
 # start service
 sudo systemctl daemon-reload
 sudo systemctl enable nibid
