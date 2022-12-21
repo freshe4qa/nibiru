@@ -88,7 +88,7 @@ sed -i -e "s|^minimum-gas-prices *=.*|minimum-gas-prices = \"0.025unibi\"|" $HOM
 
 # set peers and seeds
 SEEDS=""
-PEERS="b474b98bfe685aea2651d2b5aa425461629bb324@195.88.87.27:56656,88f479038ac185d878d8d66847a550f9409b5bcf@188.34.165.70:27656"
+PEERS="b474b98bfe685aea2651d2b5aa425461629bb324@195.88.87.27:56656,88f479038ac185d878d8d66847a550f9409b5bcf@188.34.165.70:27656,d67d2bae772c3d44123a7495d56c568a185717f8@rpc.nibiru.ppnv.space:27656"
 sed -i -e "s/^seeds *=.*/seeds = \"$SEEDS\"/; s/^persistent_peers *=.*/persistent_peers = \"$PEERS\"/" $HOME/.nibid/config/config.toml
 
 # disable indexing
