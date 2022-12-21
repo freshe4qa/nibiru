@@ -165,6 +165,7 @@ nibid tx staking create-validator \
   --pubkey  $(nibid tendermint show-validator) \
   --moniker $NODENAME \
   --chain-id $NIBIRU_CHAIN_ID
+  --fees=5000unibi
   
 break
 ;;
