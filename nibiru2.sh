@@ -91,10 +91,6 @@ SEEDS=""
 PEERS="b474b98bfe685aea2651d2b5aa425461629bb324@195.88.87.27:56656,88f479038ac185d878d8d66847a550f9409b5bcf@188.34.165.70:27656,d67d2bae772c3d44123a7495d56c568a185717f8@rpc.nibiru.ppnv.space:27656"
 sed -i -e "s/^seeds *=.*/seeds = \"$SEEDS\"/; s/^persistent_peers *=.*/persistent_peers = \"$PEERS\"/" $HOME/.nibid/config/config.toml
 
-# disable indexing
-indexer="null"
-sed -i -e "s/^indexer *=.*/indexer = \"$indexer\"/" $HOME/.nibid/config/config.toml
-
 # config pruning
 pruning="custom"
 pruning_keep_recent="100"
@@ -129,6 +125,11 @@ LimitNOFILE=65535
 [Install]
 WantedBy=multi-user.target
 EOF
+
+rm -rf $HOME/.nibid/data 
+
+SNAP_NAME=$(curl -s https://snapshots3-testnet.nodejumper.io/nibiru-testnet/ | egrep -o ">nibiru-testnet-2.*\.tar.lz4" | tr -d ">")
+curl https://snapshots3-testnet.nodejumper.io/nibiru-testnet/${SNAP_NAME} | lz4 -dc - | tar -xf - -C $HOME/.nibid
 
 # start service
 sudo systemctl daemon-reload
