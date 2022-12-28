@@ -68,7 +68,7 @@ fi
 cd $HOME && rm -rf nibiru
 git clone https://github.com/NibiruChain/nibiru.git
 cd nibiru
-git checkout v0.16.2
+git checkout v0.16.3
 make install
 
 # config
