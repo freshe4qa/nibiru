@@ -66,7 +66,7 @@ fi
 
 # download binary
 cd $HOME && rm -rf nibiru
-git clone https://github.com/NibiruChain/nibiru.git
+git clone https://github.com/NibiruChain/nibiru
 cd nibiru
 git checkout v0.16.3
 make install
@@ -109,7 +109,9 @@ sed -i.bak -e "s%^address = \"tcp://0.0.0.0:1317\"%address = \"tcp://0.0.0.0:393
 sed -i -e "s/prometheus = false/prometheus = true/" $HOME/.nibid/config/config.toml
 
 # reset
-nibid tendermint unsafe-reset-all --home $HOME/.nibid
+nibid tendermint unsafe-reset-all --home $HOME/.nibid --keep-addr-book 
+curl https://snapshots2-testnet.nodejumper.io/nibiru-testnet/nibiru-testnet-2_2023-02-21.tar.lz4 | lz4 -dc - | tar -xf - -C $HOME/.nibid
+
 
 # create service
 sudo tee /etc/systemd/system/nibid.service > /dev/null <<EOF
