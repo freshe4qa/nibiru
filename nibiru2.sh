@@ -43,7 +43,6 @@ if [ ! $WALLET ]; then
 	echo "export WALLET=wallet" >> $HOME/.bash_profile
 fi
 echo "export NIBIRU_CHAIN_ID=nibiru-testnet-2" >> $HOME/.bash_profile
-echo "export NIBIRU_PORT=${NIBIRU_PORT}" >> $HOME/.bash_profile
 source $HOME/.bash_profile
 
 # update
@@ -74,14 +73,13 @@ make install
 # config
 nibid config chain-id $NIBIRU_CHAIN_ID
 nibid config keyring-backend test
-nibid config node tcp://localhost:${NIBIRU_PORT}657
 
 # init
 nibid init $NODENAME --chain-id $NIBIRU_CHAIN_ID
 
 # download genesis and addrbook
-curl -Ls https://snapshots.kjnodes.com/nibiru-testnet/genesis.json > $HOME/.nibid/config/genesis.json
-curl -Ls https://snapshots.kjnodes.com/nibiru-testnet/addrbook.json > $HOME/.nibid/config/addrbook.json
+curl -s https://rpc.testnet-2.nibiru.fi/genesis | jq -r .result.genesis > $HOME/.nibid/config/genesis.json
+curl -s https://snapshots2-testnet.nodejumper.io/nibiru-testnet/addrbook.json > $HOME/.nibid/config/addrbook.json
 
 # set minimum gas price
 sed -i -e "s|^minimum-gas-prices *=.*|minimum-gas-prices = \"0.025unibi\"|" $HOME/.nibid/config/app.toml
@@ -90,6 +88,10 @@ sed -i -e "s|^minimum-gas-prices *=.*|minimum-gas-prices = \"0.025unibi\"|" $HOM
 SEEDS=""
 PEERS="b32bb87364a52df3efcbe9eacc178c96b35c823a@nibiru-testnet.nodejumper.io:27656,1d5f4f0313cad96580cb350bf4992d53412714da@185.245.183.190:26656,7f8bd4eaf6b9b213fd7b89ceefc517bcaa517d24@5.9.147.22:22656,224c85918ea98d62daab63ba9eceab195b676760@144.91.71.1:26656,62f26443c930a02f3e166b9db4ecd37b65b042f2@49.12.8.255:26656,ae0036bf4c7d33412a655b036d5bfd37a2aa1b72@65.21.237.241:46656,bcceb73119b08bdaf83121f11a00121cbcbbfe59@185.135.137.244:26656,c101b872586f96f0879143651471bafdff611aa5@167.86.112.234:26656,507e09ffa4899d931de427fd7747c34f46cfb5ab@95.216.156.7:26656,03db976e747df6312b1ee6dc0bd2ad9123348127@65.108.226.26:28656,b28b1488f769acc32d7f4a9dae1d9b4e1d6ba2b8@138.201.53.44:26656"
 sed -i -e "s/^seeds *=.*/seeds = \"$SEEDS\"/; s/^persistent_peers *=.*/persistent_peers = \"$PEERS\"/" $HOME/.nibid/config/config.toml
+
+# disable indexing
+indexer="null"
+sed -i -e "s/^indexer *=.*/indexer = \"$indexer\"/" $HOME/.nibid/config/config.toml
 
 # config pruning
 pruning="custom"
@@ -100,10 +102,7 @@ sed -i -e "s/^pruning *=.*/pruning = \"$pruning\"/" $HOME/.nibid/config/app.toml
 sed -i -e "s/^pruning-keep-recent *=.*/pruning-keep-recent = \"$pruning_keep_recent\"/" $HOME/.nibid/config/app.toml
 sed -i -e "s/^pruning-keep-every *=.*/pruning-keep-every = \"$pruning_keep_every\"/" $HOME/.nibid/config/app.toml
 sed -i -e "s/^pruning-interval *=.*/pruning-interval = \"$pruning_interval\"/" $HOME/.nibid/config/app.toml
-
-# set custom ports
-sed -i.bak -e "s%^proxy_app = \"tcp://127.0.0.1:26658\"%proxy_app = \"tcp://127.0.0.1:39658\"%; s%^laddr = \"tcp://127.0.0.1:26657\"%laddr = \"tcp://127.0.0.1:39657\"%; s%^pprof_laddr = \"localhost:6060\"%pprof_laddr = \"localhost:39060\"%; s%^laddr = \"tcp://0.0.0.0:26656\"%laddr = \"tcp://0.0.0.0:39656\"%; s%^prometheus_listen_addr = \":26660\"%prometheus_listen_addr = \":39660\"%" $HOME/.nibid/config/config.toml
-sed -i.bak -e "s%^address = \"tcp://0.0.0.0:1317\"%address = \"tcp://0.0.0.0:39317\"%; s%^address = \":8080\"%address = \":39080\"%; s%^address = \"0.0.0.0:9090\"%address = \"0.0.0.0:39090\"%; s%^address = \"0.0.0.0:9091\"%address = \"0.0.0.0:39091\"%; s%^address = \"0.0.0.0:8545\"%address = \"0.0.0.0:39545\"%; s%^ws-address = \"0.0.0.0:8546\"%ws-address = \"0.0.0.0:39546\"%" $HOME/.nibid/config/app.toml
+sed -i "s/snapshot-interval *=.*/snapshot-interval = 0/g" $HOME/.nibid/config/app.toml
 
 # enable prometheus
 sed -i -e "s/prometheus = false/prometheus = true/" $HOME/.nibid/config/config.toml
