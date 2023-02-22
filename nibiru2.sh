@@ -38,7 +38,6 @@ if [ ! $NODENAME ]; then
 	read -p "Enter node name: " NODENAME
 	echo 'export NODENAME='$NODENAME >> $HOME/.bash_profile
 fi
-NIBIRU_PORT=39
 if [ ! $WALLET ]; then
 	echo "export WALLET=wallet" >> $HOME/.bash_profile
 fi
@@ -107,30 +106,25 @@ sed -i "s/snapshot-interval *=.*/snapshot-interval = 0/g" $HOME/.nibid/config/ap
 # enable prometheus
 sed -i -e "s/prometheus = false/prometheus = true/" $HOME/.nibid/config/config.toml
 
-# reset
-nibid tendermint unsafe-reset-all --home $HOME/.nibid --keep-addr-book 
-curl https://snapshots2-testnet.nodejumper.io/nibiru-testnet/nibiru-testnet-2_2023-02-21.tar.lz4 | lz4 -dc - | tar -xf - -C $HOME/.nibid
-
-
 # create service
-sudo tee /etc/systemd/system/nibid.service > /dev/null <<EOF
+sudo tee /etc/systemd/system/nibid.service > /dev/null << EOF
 [Unit]
-Description=nibi
+Description=Nibiru Node
 After=network-online.target
 [Service]
 User=$USER
-ExecStart=$(which nibid) start --home $HOME/.nibid
+ExecStart=$(which nibid) start
 Restart=on-failure
-RestartSec=3
-LimitNOFILE=65535
+RestartSec=10
+LimitNOFILE=10000
 [Install]
 WantedBy=multi-user.target
 EOF
 
-rm -rf $HOME/.nibid/data 
+# reset
+nibid tendermint unsafe-reset-all --home $HOME/.nibid --keep-addr-book 
 
-SNAP_NAME=$(curl -s https://snapshots3-testnet.nodejumper.io/nibiru-testnet/ | egrep -o ">nibiru-testnet-2.*\.tar.lz4" | tr -d ">")
-curl https://snapshots3-testnet.nodejumper.io/nibiru-testnet/${SNAP_NAME} | lz4 -dc - | tar -xf - -C $HOME/.nibid
+curl https://snapshots2-testnet.nodejumper.io/nibiru-testnet/nibiru-testnet-2_2023-02-22.tar.lz4 | lz4 -dc - | tar -xf - -C $HOME/.nibid
 
 # start service
 sudo systemctl daemon-reload
