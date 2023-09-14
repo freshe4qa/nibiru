@@ -41,32 +41,32 @@ fi
 if [ ! $WALLET ]; then
 	echo "export WALLET=wallet" >> $HOME/.bash_profile
 fi
-echo "export NIBIRU_CHAIN_ID=nibiru-itn-1" >> $HOME/.bash_profile
+echo "export NIBIRU_CHAIN_ID=nibiru-itn-2" >> $HOME/.bash_profile
 source $HOME/.bash_profile
 
 # update
 sudo apt update && sudo apt upgrade -y
 
 # packages
-sudo apt install curl build-essential git wget jq make gcc tmux chrony -y
+apt install curl iptables build-essential git wget jq make gcc nano tmux htop nvme-cli pkg-config libssl-dev libleveldb-dev tar clang bsdmainutils ncdu unzip libleveldb-dev -y
 
 # install go
 if ! [ -x "$(command -v go)" ]; then
-  ver="1.18.2"
-cd $HOME
-wget "https://golang.org/dl/go$ver.linux-amd64.tar.gz"
-sudo rm -rf /usr/local/go
-sudo tar -C /usr/local -xzf "go$ver.linux-amd64.tar.gz"
-rm "go$ver.linux-amd64.tar.gz"
-echo "export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin" >> ~/.bash_profile
-source ~/.bash_profile
+ver="1.20.3" && \
+wget "https://golang.org/dl/go$ver.linux-amd64.tar.gz" && \
+sudo rm -rf /usr/local/go && \
+sudo tar -C /usr/local -xzf "go$ver.linux-amd64.tar.gz" && \
+rm "go$ver.linux-amd64.tar.gz" && \
+echo "export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin" >> $HOME/.bash_profile && \
+source $HOME/.bash_profile && \
+go version
 fi
 
 # download binary
 cd $HOME && rm -rf nibiru
 git clone https://github.com/NibiruChain/nibiru
 cd nibiru
-git checkout v0.19.2
+git checkout v0.21.9
 make install
 
 # config
@@ -77,15 +77,15 @@ nibid config keyring-backend test
 nibid init $NODENAME --chain-id $NIBIRU_CHAIN_ID
 
 # download genesis and addrbook
-curl -s https://rpc.itn-1.nibiru.fi/genesis | jq -r .result.genesis > $HOME/.nibid/config/genesis.json
-curl -s https://snapshots2-testnet.nodejumper.io/nibiru-testnet/addrbook.json > $HOME/.nibid/config/addrbook.json
+wget -O $HOME/.nibid/config/genesis.json "https://networks.itn2.nibiru.fi/nibiru-itn-2/genesis"
+wget -O $HOME/.nibid/config/addrbook.json "https://share101.utsa.tech/nibiru/addrbook.json"
 
 # set minimum gas price
 sed -i -e "s|^minimum-gas-prices *=.*|minimum-gas-prices = \"0.0001unibi\"|" $HOME/.nibid/config/app.toml
 
 # set peers and seeds
-SEEDS="3f472746f46493309650e5a033076689996c8881@nibiru-testnet.rpc.kjnodes.com:39659,a431d3d1b451629a21799963d9eb10d83e261d2c@seed-1.itn-1.nibiru.fi:26656,6a78a2a5f19c93661a493ecbe69afc72b5c54117@seed-2.itn-1.nibiru.fi:26656"
-PEERS="a1b96d1437fb82d3d77823ecbd565c6268f06e34@nibiru-testnet.nodejumper.io:27656,39cf8864b1f1655a007ece6c579b290a9132082b@65.109.143.6:26656,19f6588df6e489a3e512ebac805c5250cdc9fbb7@84.46.249.14:26656,5808c7e3cb15029cdbc9f0fb88116d2cc54ae0c1@84.46.254.241:26656,250b70b8282913d9914645c13fbdc03ae8fb89ab@194.163.130.5:26656"
+SEEDS="142142567b8a8ec79075ff3729e8e5b9eb2debb7@35.195.230.189:26656,766ca434a82fe30158845571130ee7106d52d0c2@34.140.226.56:26656"
+PEERS="d5519e378247dfb61dfe90652d1fe3e2b3005a5b@65.109.68.190:13956,9a3d3357c38dc553e0fd2e89f9d2213016751fb5@176.9.110.12:36656,8e0e6c1583153282d07511d3ea13e53f6ce77b51@162.55.234.70:55356,c060180df8c01546c66d21ee307b09f700780f65@34.34.137.125:26656,4a81486786a7c744691dc500360efcdaf22f0840@141.94.174.11:26656,1e92b8c92b1a49c0d85f3c0f5ca958242e9a3c4b@75.119.146.247:26656,7a0d35b3cb1eda647d57c699c3e847d4e41d890d@65.108.8.28:36656,413a45800222a978bd01077e780a5861970c8306@185.75.181.19:26656,111dd6b7ac9d0f80d7a04ce212267ce95cb913e9@195.201.76.69:26656,41bb02a3e2b60761f07ddcc7138bcf17b6a1eda9@65.109.90.171:27656,081ff903784a3f1b69522d6167c998c88c91ce61@65.108.13.154:27656,e36ada54e3d1e7c05c1c3b585b4235134aa185ef@65.108.206.118:60656,d092162ed9c61c9921842ff1fb221168c68d4872@65.109.65.248:27656"
 sed -i -e "s/^seeds *=.*/seeds = \"$SEEDS\"/; s/^persistent_peers *=.*/persistent_peers = \"$PEERS\"/" $HOME/.nibid/config/config.toml
 
 # disable indexing
@@ -123,7 +123,7 @@ EOF
 
 # reset
 nibid tendermint unsafe-reset-all --home $HOME/.nibid --keep-addr-book 
-curl https://snapshots-testnet.nodejumper.io/nibiru-testnet/nibiru-itn-1_2023-09-12.tar.lz4 | lz4 -dc - | tar -xf - -C $HOME/.nibid
+#curl https://snapshots-testnet.nodejumper.io/nibiru-testnet/nibiru-itn-1_2023-09-12.tar.lz4 | lz4 -dc - | tar -xf - -C $HOME/.nibid
 
 # start service
 sudo systemctl daemon-reload
@@ -152,7 +152,7 @@ nibid tx staking create-validator \
 --amount=10000000unibi \
 --pubkey=$(nibid tendermint show-validator) \
 --moniker="$NODENAME" \
---chain-id=nibiru-itn-1 \
+--chain-id=nibiru-itn-2 \
 --commission-rate=0.1 \
 --commission-max-rate=0.2 \
 --commission-max-change-rate=0.05 \
