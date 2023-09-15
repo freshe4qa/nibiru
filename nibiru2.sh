@@ -77,8 +77,8 @@ nibid config keyring-backend test
 nibid init $NODENAME --chain-id $NIBIRU_CHAIN_ID
 
 # download genesis and addrbook
-wget -O $HOME/.nibid/config/genesis.json "https://networks.itn2.nibiru.fi/nibiru-itn-2/genesis"
-wget -O $HOME/.nibid/config/addrbook.json "https://share101.utsa.tech/nibiru/addrbook.json"
+curl -s https://rpc.itn-2.nibiru.fi/genesis | jq -r .result.genesis > $HOME/.nibid/config/genesis.json
+curl -s https://snapshots-testnet.nodejumper.io/nibiru-testnet/addrbook.json > $HOME/.nibid/config/addrbook.json
 
 # set minimum gas price
 sed -i -e "s|^minimum-gas-prices *=.*|minimum-gas-prices = \"0.0001unibi\"|" $HOME/.nibid/config/app.toml
@@ -123,7 +123,7 @@ EOF
 
 # reset
 nibid tendermint unsafe-reset-all --home $HOME/.nibid --keep-addr-book 
-#curl https://snapshots-testnet.nodejumper.io/nibiru-testnet/nibiru-itn-1_2023-09-12.tar.lz4 | lz4 -dc - | tar -xf - -C $HOME/.nibid
+curl https://snapshots-testnet.nodejumper.io/nibiru-testnet/nibiru-itn-1_2023-09-15.tar.lz4 | lz4 -dc - | tar -xf - -C $HOME/.nibid
 
 # start service
 sudo systemctl daemon-reload
