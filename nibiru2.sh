@@ -123,7 +123,7 @@ EOF
 
 # reset
 nibid tendermint unsafe-reset-all --home $HOME/.nibid --keep-addr-book 
-curl https://snapshots-testnet.nodejumper.io/nibiru-testnet/nibiru-itn-1_2023-09-16.tar.lz4 | lz4 -dc - | tar -xf - -C $HOME/.nibid
+curl -L https://snapshots.kjnodes.com/nibiru-testnet/snapshot_latest.tar.lz4 | tar -Ilz4 -xf - -C $HOME/.nibid
 
 # start service
 sudo systemctl daemon-reload
