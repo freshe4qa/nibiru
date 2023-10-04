@@ -41,7 +41,7 @@ fi
 if [ ! $WALLET ]; then
 	echo "export WALLET=wallet" >> $HOME/.bash_profile
 fi
-echo "export NIBIRU_CHAIN_ID=nibiru-itn-2" >> $HOME/.bash_profile
+echo "export NIBIRU_CHAIN_ID=nibiru-itn-3" >> $HOME/.bash_profile
 source $HOME/.bash_profile
 
 # update
@@ -66,7 +66,7 @@ fi
 cd $HOME && rm -rf nibiru
 git clone https://github.com/NibiruChain/nibiru
 cd nibiru
-git checkout v0.21.9
+git checkout v0.21.10
 make install
 
 # config
@@ -77,15 +77,15 @@ nibid config keyring-backend test
 nibid init $NODENAME --chain-id $NIBIRU_CHAIN_ID
 
 # download genesis and addrbook
-curl -s https://rpc.itn-2.nibiru.fi/genesis | jq -r .result.genesis > $HOME/.nibid/config/genesis.json
-curl -s https://snapshots-testnet.nodejumper.io/nibiru-testnet/addrbook.json > $HOME/.nibid/config/addrbook.json
+curl -Ls https://snapshots.kjnodes.com/nibiru-testnet/genesis.json > $HOME/.nibid/config/genesis.json
+curl -Ls https://snapshots.kjnodes.com/nibiru-testnet/addrbook.json > $HOME/.nibid/config/addrbook.json
 
 # set minimum gas price
-sed -i -e "s|^minimum-gas-prices *=.*|minimum-gas-prices = \"0.0001unibi\"|" $HOME/.nibid/config/app.toml
+sed -i -e "s|^minimum-gas-prices *=.*|minimum-gas-prices = \"0.025unibi\"|" $HOME/.nibid/config/app.toml
 
 # set peers and seeds
-SEEDS="142142567b8a8ec79075ff3729e8e5b9eb2debb7@35.195.230.189:26656,766ca434a82fe30158845571130ee7106d52d0c2@34.140.226.56:26656"
-PEERS="d5519e378247dfb61dfe90652d1fe3e2b3005a5b@65.109.68.190:13956,9a3d3357c38dc553e0fd2e89f9d2213016751fb5@176.9.110.12:36656,8e0e6c1583153282d07511d3ea13e53f6ce77b51@162.55.234.70:55356,c060180df8c01546c66d21ee307b09f700780f65@34.34.137.125:26656,4a81486786a7c744691dc500360efcdaf22f0840@141.94.174.11:26656,1e92b8c92b1a49c0d85f3c0f5ca958242e9a3c4b@75.119.146.247:26656,7a0d35b3cb1eda647d57c699c3e847d4e41d890d@65.108.8.28:36656,413a45800222a978bd01077e780a5861970c8306@185.75.181.19:26656,111dd6b7ac9d0f80d7a04ce212267ce95cb913e9@195.201.76.69:26656,41bb02a3e2b60761f07ddcc7138bcf17b6a1eda9@65.109.90.171:27656,081ff903784a3f1b69522d6167c998c88c91ce61@65.108.13.154:27656,e36ada54e3d1e7c05c1c3b585b4235134aa185ef@65.108.206.118:60656,d092162ed9c61c9921842ff1fb221168c68d4872@65.109.65.248:27656"
+SEEDS="3f472746f46493309650e5a033076689996c8881@nibiru-testnet.rpc.kjnodes.com:13959"
+PEERS="729949706e9947e5b7aa10a411a9d2b96e5fe42b@104.199.24.9:26656,df8f984eddf2731b4d3dc558c7fc8be6d2a1e033@34.34.137.125:26656,67294cc6ca6ae617af4cdb22b12ecb8d6e57f2d7@165.22.72.7:26656,8e0e6c1583153282d07511d3ea13e53f6ce77b51@162.55.234.70:55356,e5a533cf669a33c76183443c52943101ffe8fec3@207.244.231.52:26656,c709cad9e11b315644fe8f1d2e90c03c5cba685c@79.168.171.177:26656,41bb02a3e2b60761f07ddcc7138bcf17b6a1eda9@65.109.90.171:27656,aad6e3a872d829d3fa1884e9d5f2e53f49950a71@5.189.130.43:13956,d092162ed9c61c9921842ff1fb221168c68d4872@65.109.65.248:27656,306b7549a5fd41c77a1695dea306292ffae38d8b@34.38.59.17:26656"
 sed -i -e "s/^seeds *=.*/seeds = \"$SEEDS\"/; s/^persistent_peers *=.*/persistent_peers = \"$PEERS\"/" $HOME/.nibid/config/config.toml
 
 # disable indexing
@@ -123,7 +123,7 @@ EOF
 
 # reset
 nibid tendermint unsafe-reset-all --home $HOME/.nibid --keep-addr-book 
-curl https://snapshots-testnet.nodejumper.io/nibiru-testnet/nibiru-itn-2_2023-10-02.tar.lz4 | lz4 -dc - | tar -xf - -C $HOME/.nibid
+curl https://snapshots-testnet.nodejumper.io/nibiru-testnet/nibiru-itn-3_2023-10-04.tar.lz4 | lz4 -dc - | tar -xf - -C $HOME/.nibid
 
 # start service
 sudo systemctl daemon-reload
@@ -152,7 +152,7 @@ nibid tx staking create-validator \
 --amount=10000000unibi \
 --pubkey=$(nibid tendermint show-validator) \
 --moniker="$NODENAME" \
---chain-id=nibiru-itn-2 \
+--chain-id=nibiru-itn-3 \
 --commission-rate=0.1 \
 --commission-max-rate=0.2 \
 --commission-max-change-rate=0.05 \
