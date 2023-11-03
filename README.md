@@ -2,7 +2,7 @@
   <img height="100" height="auto" src="https://user-images.githubusercontent.com/50621007/199199328-32dcdc7c-db06-4519-827f-6c6af09228f9.png">
 </p>
 
-# Nibiru Testnet — nibiru-itn-1
+# Nibiru Testnet — nibiru-itn-2
 
 Official documentation:
 >- [Validator setup instructions](https://docs.nibiru.fi/run-nodes/testnet/)
